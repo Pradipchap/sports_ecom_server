@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "bash -lc 'set -a && source .env && set +a && DATABASE_URL=\"$DIRECT_URL\" prisma migrate deploy'",
     "seed": "ts-node-dev --transpile-only prisma/seed.ts",
     "test": "echo \"No tests yet\""
   },
