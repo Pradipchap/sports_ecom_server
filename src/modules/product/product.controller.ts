@@ -12,6 +12,20 @@ const getImageUrl = (req: Request) => {
   return typeof bodyImage === "string" && bodyImage.trim() ? bodyImage.trim() : undefined;
 };
 
+const parseOptionalSizeFilter = (raw: unknown): number | undefined => {
+  if (raw === undefined || raw === "") return undefined;
+  const n = Number(String(raw).trim());
+  if (!Number.isInteger(n) || n < 1 || n > 10) return undefined;
+  return n;
+};
+
+const parseOptionalNonNegativePrice = (raw: unknown): number | undefined => {
+  if (raw === undefined || raw === "") return undefined;
+  const n = Number(String(raw).trim());
+  if (!Number.isFinite(n) || n < 0) return undefined;
+  return n;
+};
+
 const parseProductPayload = (req: Request) => ({
   availableSizes:
     typeof req.body.availableSizes === "string"
@@ -30,9 +44,12 @@ const parseProductPayload = (req: Request) => ({
 export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   const search = req.query.search?.toString();
   const categoryId = req.query.categoryId?.toString();
-  const size = req.query.size ? Number(req.query.size) : undefined;
-  const minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
-  const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
+  const size = parseOptionalSizeFilter(req.query.size);
+  let minPrice = parseOptionalNonNegativePrice(req.query.minPrice);
+  let maxPrice = parseOptionalNonNegativePrice(req.query.maxPrice);
+  if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+    [minPrice, maxPrice] = [maxPrice, minPrice];
+  }
   const excludeId = req.query.excludeId?.toString();
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
