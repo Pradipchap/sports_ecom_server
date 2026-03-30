@@ -42,8 +42,9 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - ./uploads:/app/uploads
+      - uploads_data:/app/uploads
     command: sh -c "npm install && npx prisma migrate deploy && npm run dev"
 
 volumes:
   postgres_data:
+  uploads_data:
